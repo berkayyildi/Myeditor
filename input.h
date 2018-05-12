@@ -180,7 +180,7 @@ int main()
 	textbuffer[counter-1].link = -1;	//Baslangicta son elemana -1 linki verir
 	free_list = counter;		//Baslangicta free yi ayarlar
 	satirsayisi = counter;		//Baslangicta satir sayisini ayarlar
-	cursor_line = counter+1;	//Cursor cunku hep bi alta iniyo
+	cursor_line = counter;	//Cursor cunku hep bi alta iniyo (Burdaki +1 i kaldirdim cunku fazla onun yerine okuduktan sonra 1 satir uste goturuyorum)
 	cursor_col = 1;			//En az 1 olabilir
 
 	int i;
@@ -190,6 +190,9 @@ int main()
 
 	}
 	textbuffer[19].link = -1;
+
+	prinlet();		//DOSYAYI OKUDUKTAN SONRA ARRAYDAN EKRANA PRINTLE
+	printf("\033[1A");	// Move cursor one up
 
 }
 
@@ -281,7 +284,7 @@ freelist = silinenin indexi;
 
 	textbuffer[silinen_nodeu_gosterenin_indexi].link = tmp_silinen_node_un_linki;   //1. satırda istenen işlem yapıldı
 	textbuffer[tmp_silinen_node_un_indexi].link = free_list;    //2. satırda istenen işlem yapıldı
-    free_list = tmp_silinen_node_un_indexi; //3. satırda istenen işlem yapıldı
+    	free_list = tmp_silinen_node_un_indexi; //3. satırda istenen işlem yapıldı
 
 	satirsayisi--;
 }
@@ -296,12 +299,11 @@ void karakterdegistir(int satir_no, int stun_no, char karakter){
 	}
 
 
-	char templine[77];
-	memset(templine, ' ', sizeof(templine));
-	templine[76] = '\0';
+	char templine[80] = "";
+
 	strcpy(templine, textbuffer[ugrasacagimizindex].line);
 
-    	templine[stun_no] = karakter;
+    	templine[stun_no-1] = karakter;
 	strcpy(textbuffer[ugrasacagimizindex].line, templine);
 
 }
