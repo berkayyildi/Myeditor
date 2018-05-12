@@ -1,1 +1,1 @@
-alias r="gcc myeditor.c && ./a.out ourFile.txt"
+alias r="clear && gcc -o myeditor myeditor.c && ./myeditor ourFile.txt"

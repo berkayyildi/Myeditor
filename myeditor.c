@@ -5,17 +5,18 @@ int temizle(void){	//Heryeri ekranda boslukla doldurur
 	printf("\033[0;0H");	//Basa al cursoru
 	int i,j;
 
-	for(i=0 ; i < 20 ; i++){
+	for(i=0 ; i < 21 ; i++){
 		for (j=0 ; j < 80 ; j++){
 			printf("\033[%d;%dH",i,j);
 			printf(" ");
 		}
 		printf("|");
 	}
-printf("\n--------------------------------------------------------------------------------");
+	printf("\n--------------------------------------------------------------------------------");
 	printf("\033[0;0H");	//Basa al cursoru
 
 }
+
 int main(int argc, char *argv[]){
 
 	strcpy (ourFile, argv[1]);	//Ilk parametreyi okunacakdosya olarak belirle
@@ -28,25 +29,27 @@ int main(int argc, char *argv[]){
 		c = kbget();        // Get input
 		
 		if (c == '+') {	// Satir eklemesi icin
-			insert_line(cursor_line);
-			temizle();
-			prinlet();
-			printf("\033[%d;%dH",cursor_line+1,0);	//Cursoru goruntude bir alta al
-			cursor_line++;				//Cursoru degiskende bir alta al
-			cursor_col=0;
+			if(cursor_line<20){
+				insert_line(cursor_line);
+				temizle();
+				prinlet();
+				printf("\033[%d;%dH",cursor_line+1,0);	//Cursoru goruntude bir alta al
+				cursor_line++;				//Cursoru degiskende bir alta al
+				cursor_col=1;
+			}
 		} else
 		if (c == '-') {	// Satir Silmesi icin
 			delete_line(cursor_line);
 			temizle();
 			prinlet();
 			printf("\033[%d;%dH",cursor_line-1,cursor_col);	//Cursoru goruntude bir uste al
-			cursor_line--;				//Cursoru degiskende bir uste al
+			cursor_line--;					//Cursoru degiskende bir uste al
 		
 		} else
 		if (c == '*') {	// DEBUG ICIN
-			printf("\033[21;0H Line: %d Col: %d \033[%d;%dH",cursor_line , cursor_col , cursor_line , cursor_col);
-			printf("\033[22;0H In-Use: %d Free: %d \033[%d;%dH",in_use , free_list , cursor_line , cursor_col);
-			printf("\033[22;0H");
+			printf("\033[23;0H -- Line: %d | Col: %d | Num of Lines: %d -- \033[%d;%dH",cursor_line , cursor_col , satirsayisi , cursor_line , cursor_col);
+			printf("\033[25;0H In-Use: %d Free: %d \033[%d;%dH",in_use , free_list , cursor_line , cursor_col);
+			printf("\033[25;0H");
 			arrayprinlet();
 			printf("\033[%d;%dH", cursor_line , cursor_col);
 		} else

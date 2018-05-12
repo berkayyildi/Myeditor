@@ -61,20 +61,15 @@ static int kbget(void){
 }
 
 //-----------------------------------------------------
-
 // stdio.h , string.h zaten include edildi
-/*	int main(){	open_file();	return 0;	}*/
 
 int cursor_line=0, cursor_col=1; // current position of the cursor
 int in_use=0, free_list;
 int satirsayisi=0;
-
 char ourFile[100];
 
+void insert_line(int satir_no){   //n inci elemandan sonra bi satýr aça ve oraya yazý ekler 1 ile satir sayisi arasinda bi sayi alir
 
-
- void insert_line(int satir_no)   //n inci elemandan sonra bi satýr aça ve oraya yazý ekler 1 ile satir sayisi arasinda bi sayi alir
- {
 	int ugrasacagimizindex = in_use;
 	int nth_satir=0;
 	while (nth_satir < satir_no-1){
@@ -92,7 +87,7 @@ char ourFile[100];
 	free_list++;
 }
 
- void open_file(){
+void open_file(){
 
 	char val[80] = "";
 	int counter = 0;
@@ -125,14 +120,13 @@ char ourFile[100];
 
 void save_file(){
 
-
 	FILE *fp;
 
 	fp=fopen(ourFile, "w");
 
 	int i = in_use;
 	while (i != -1){
-		fprintf(fp, "%s \n",textbuffer[i].line);
+		fprintf(fp, "%s\n",textbuffer[i].line);
 		i = textbuffer[i].link;
 
 	}
@@ -174,6 +168,15 @@ void arrayprinlet(){
 
 
 void delete_line(int silinecek_satir){
+
+	if (silinecek_satir == 1){
+		int ilk_node_un_linki = textbuffer[0].link;
+		in_use = ilk_node_un_linki;
+		textbuffer[0].link = free_list;
+		free_list = 0;
+		
+		return;
+	}
 
 	silinecek_satir--;	//Yoksa bi altta siliyor
 	/*
@@ -224,8 +227,8 @@ void change_char(int satir_no, int stun_no, char karakter){
 	}
 
 
-	char templine[80] = "";
-	templine[80] = '\0';
+	char templine[80]="";
+	templine[80]='\0';
 
 	strcpy(templine, textbuffer[ugrasacagimizindex].line);
 
