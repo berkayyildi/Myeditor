@@ -1,3 +1,0 @@
-her save de boşluk atma sorunu çözüldü
-ekleme yapar yapmaz yazı yazınca ilk karakterin yok olması sorunu çözüldü
-20. satırdan sonraya yazı yazılmasın diye limit koyuldu

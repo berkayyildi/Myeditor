@@ -140,7 +140,7 @@ void open_file(){
 	}
 
 	prinlet();		//DOSYAYI OKUDUKTAN SONRA ARRAYDAN EKRANA PRINTLE
-	printf("\033[%d;%dH", cursor_line , cursor_col);	//Cursor Satir stun ne ise oraya gitsin
+
 
 }
 
@@ -171,11 +171,13 @@ void prinlet(){
 		i = textbuffer[i].link;
 
 	}
-/*
+	/*
 	 printf("\033[20;0H");      // Move cursor to 20th row, 0rd column
 	 printf(" \n \nIn-Use List %d " , in_use);
 	 printf(" \nFree List: %d\n " , free_list);
-*/
+	*/
+
+	printf("\033[%d;%dH", cursor_line , cursor_col);	//print ettikten sonra cursorun son kaldigi
 
 }
 
@@ -194,18 +196,27 @@ void arrayprinlet(){
 
 
 void delete_line(int silinecek_satir){
+//----------------------- | Ilk Satiri Silsin Diye | -----------------------
+	int ilkmibak = in_use;	//Bu index no vericek bize looptan sonra
+	int nth_line_for_first_line_control=0;	//Bu da kaçıncı satir oldugunu veriyor
+	while (nth_line_for_first_line_control < silinecek_satir){
+		ilkmibak = textbuffer[ilkmibak].link;
+        nth_line_for_first_line_control++;
+	}
 
-	if (silinecek_satir == 1){
-		int ilk_node_un_linki = textbuffer[0].link;
-		strcpy(textbuffer[0].line, "");
+	if (nth_line_for_first_line_control == 1){
+		int ilk_node_un_linki = textbuffer[ilkmibak-1].link;
+
+		printf("\033[22;0H En ust satir silindi:%d \033[%d;%dH", ilk_node_un_linki, cursor_line , cursor_col);
+		strcpy(textbuffer[ilkmibak-1].line, " ");
 		in_use = ilk_node_un_linki;
-		textbuffer[0].link = free_list;
-		free_list = 0;
+		textbuffer[ilkmibak-1].link = free_list;
+		free_list = ilkmibak-1;
 		satirsayisi--;
 		return;
 	}
+//----------------------------------------------------------------------------
 
-	silinecek_satir--;	//Yoksa bi altta siliyor
 	/*
 	Silineni gösteren node un linki = Silinen node un linki (TEMPE AT BUNU);
 	Silinenin linki = free_list;
@@ -215,34 +226,41 @@ void delete_line(int silinecek_satir){
 	//------------------------------------------------- //Silinenin bilgileri
 	int ugrasacagimizindex = in_use;
 	int nth_satir=0;
-	while (nth_satir < silinecek_satir){
+	while (nth_satir < silinecek_satir - 1){
 		ugrasacagimizindex = textbuffer[ugrasacagimizindex].link;
         nth_satir++;
 	}
-	//printf("\nSilinecek node %d  \n" , textbuffer[ugrasacagimizindex].line);+
-	strcpy(textbuffer[ugrasacagimizindex].line, " ");	//İçindeki veriyi yok et
+	//printf("\nSilinecek node %d  \n" , textbuffer[ugrasacagimizindex].line);
+	strcpy(textbuffer[ugrasacagimizindex].line, "Silindi!");	//İçindeki veriyi yok et
 
 	int tmp_silinen_node_un_linki = textbuffer[ugrasacagimizindex].link;
-
 	int tmp_silinen_node_un_indexi = nth_satir;
-	//-------------------------------------------------- //Silineni gösterenin node bilgileri
-	int silinen_nodeu_gosterenin_indexi;
-	int i ;
-	for (i = 0 ; i< 20 ; i++){
-		if (textbuffer[i].link == tmp_silinen_node_un_indexi){
-                silinen_nodeu_gosterenin_indexi = i;
-                break;
-		}
-	}
-	// printf("\nSilinen node u gosteren node %s  \n" , textbuffer[silinen_nodeu_gosterenin_indexi].line);
-	//silinen_nodeu_gosterenin_indexi diye bir veri geliyor burdan
-	int silinen_nodeu_gosterenin_linki = textbuffer[silinen_nodeu_gosterenin_indexi].link;
-	//--------------------------------------------------
-	textbuffer[silinen_nodeu_gosterenin_indexi].link = tmp_silinen_node_un_linki;   //1. satırda istenen işlem yapıldı
-	textbuffer[tmp_silinen_node_un_indexi].link = free_list;    //2. satırda istenen işlem yapıldı
-    	free_list = tmp_silinen_node_un_indexi; //3. satırda istenen işlem yapıldı
 
-	satirsayisi--;
+	//-------------------------------------------------- //Silineni gösterenin node bilgileri
+	int siradaki_index = in_use;	//RESETLE
+
+	
+	while (textbuffer[siradaki_index].link != tmp_silinen_node_un_linki){
+		siradaki_index = textbuffer[siradaki_index].link;
+	}
+
+	int bionceyedaha = siradaki_index;	//BURDA BIR GERI DAHA GITMEK GEREKIYORMUS
+
+	while (textbuffer[siradaki_index].link != bionceyedaha){
+		siradaki_index = textbuffer[siradaki_index].link;
+	}
+
+	int silinen_nodeu_gosterenin_indexi = siradaki_index;
+	int silinen_nodeu_gosterenin_linki = textbuffer[siradaki_index].link;
+	//printf("\033[22;0H silinen_nodeu_gosteren_node :%s \033[%d;%dH", textbuffer[siradaki_index].line, cursor_line , cursor_col);
+	//--------------------------------------------------
+	
+	textbuffer[tmp_silinen_node_un_indexi].link = free_list;
+	free_list = tmp_silinen_node_un_indexi;
+	textbuffer[silinen_nodeu_gosterenin_indexi].link = tmp_silinen_node_un_linki;
+
+	cursor_line--;									//Cursoru degiskende bir uste al
+	satirsayisi--;									//Satir sayisini 1 azalt
 }
 
 

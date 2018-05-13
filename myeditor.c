@@ -32,10 +32,10 @@ int main(int argc, char *argv[]){
 			if(satirsayisi < 20){
 				insert_line(cursor_line);
 				temizle();
-				prinlet();
-				printf("\033[%d;%dH",cursor_line+1,0);	//Cursoru goruntude bir alta al
 				cursor_line++;				//Cursoru degiskende bir alta al
 				cursor_col=1;
+				prinlet();
+				
 			}
 		} else
 		if (c == '-') {	// Satir Silmesi icin
@@ -43,8 +43,6 @@ int main(int argc, char *argv[]){
 				delete_line(cursor_line);
 				temizle();
 				prinlet();
-				printf("\033[%d;%dH",cursor_line-1,cursor_col);	//Cursoru goruntude bir uste al
-				cursor_line--;					//Cursoru degiskende bir uste al
 			}
 		
 		} else
@@ -58,9 +56,7 @@ int main(int argc, char *argv[]){
 		if (c == '@') {	// Dosya kaydetmesi icin
 			printf("\033[21;0H");      // Move cursor to 20th row, 0rd column
 			save_file();
-			
 			printf("[FILE SAVED]");
-
 			break;
 		} else
 		if (c == KEY_ENTER || c == KEY_ESCAPE) {
@@ -73,8 +69,7 @@ int main(int argc, char *argv[]){
 			}
 		} else
 		if (c == KEY_RIGHT) {
-			if (cursor_col < strlen(textbuffer[cursor_line-1].line)+1){	//stun sayisindan daha fazla ileri gitmeye izin verme
-
+			if (cursor_col < strlen(textbuffer[cursor_line-1].line)+1){	//stun sayisindan daha fazla ileri gitmeye izin verme (Bu kontrol dinamik değil :( )
 		    	    printf("\033[1C");	// Move cursor one right
 		    	    cursor_col++;
 			}
