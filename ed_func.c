@@ -64,11 +64,18 @@ static int kbget(void){
 // stdio.h , string.h zaten include edildi
 
 int cursor_line=0, cursor_col=1; // current position of the cursor
-int in_use=0, free_list;
+int in_use=0, free_list=1;
 int satirsayisi=0;
 char ourFile[100];
 
 void insert_line(int satir_no){   //n inci elemandan sonra bi satýr aça ve oraya yazý ekler 1 ile satir sayisi arasinda bi sayi alir
+
+	if (in_use == -1){
+		in_use = 0;
+		textbuffer[0].link = -1;
+		free_list = 1;
+		return;
+	}
 
 	int ugrasacagimizindex = in_use;
 	int nth_satir=0;
@@ -83,38 +90,57 @@ void insert_line(int satir_no){   //n inci elemandan sonra bi satýr aça ve ora
 	textbuffer[free_list].link = kaybolacak;
 
 	strcpy(textbuffer[free_list].line, " ");	//Bos olan ilk yer yaz
-
+	satirsayisi++;	//satir sayisini 1 arttir
 	free_list++;
 }
 
 void open_file(){
 
 	char val[80] = "";
-	int counter = 0;
 	FILE *filepointer;
 	filepointer = fopen(ourFile,"r");
 
+	if (!filepointer){
+		printf("File Not Found\n\n");
+		exit(0);
+	}
+
 	while (fgets(val,80,filepointer) != NULL){
 		remove_new_line(val);	//Satir okurken gelen bosluk karakterini siler
-		strcpy(textbuffer[counter].line, val);
-		textbuffer[counter].link = counter + 1;
-		counter++;
+		strcpy(textbuffer[satirsayisi].line, val);
+		textbuffer[satirsayisi].link = satirsayisi + 1;
+		satirsayisi++;
+		if (satirsayisi > 19){
+			printf("\033[22;0H File Longer Than 20 Line! First 20 Line Here. \033[%d;%dH", cursor_line , cursor_col);
+			break;
+		}
 	}
-	textbuffer[counter-1].link = -1;	//Baslangicta son elemana -1 linki verir
-	free_list = counter;		//Baslangicta free yi ayarlar
-	satirsayisi = counter;		//Baslangicta satir sayisini ayarlar
-	cursor_line = counter;	//Cursor cunku hep bi alta iniyo (Burdaki +1 i kaldirdim cunku fazla onun yerine okuduktan sonra 1 satir uste goturuyorum)
+	textbuffer[satirsayisi-1].link = -1;	//Baslangicta 20. elemana -1 linki verir
+	free_list = satirsayisi;		//Baslangicta free yi ayarlar
+	cursor_line = satirsayisi;	//Cursor cunku hep bi alta iniyo (Burdaki +1 i kaldirdim cunku fazla onun yerine okuduktan sonra 1 satir uste goturuyorum)
 	cursor_col = 1;			//En az 1 olabilir
 
 	int i;
 
-	for (i=counter+1; i< 20 ; i++){
-		textbuffer[i-1].link = i+1;
+	for (i=satirsayisi; i<19 ; i++){
+		textbuffer[i].link = i+1;
 	}
 	textbuffer[19].link = -1;
 
+
+
+	if (satirsayisi == 0){	//Otomatik 1 satır ekle
+		in_use = 0;
+		textbuffer[1].link = -1;
+		free_list = 1;
+		cursor_line=1;
+		cursor_col=1;
+		satirsayisi=1;
+		printf("\033[0;0H"); //0,0 a gotur cursoru
+	}
+
 	prinlet();		//DOSYAYI OKUDUKTAN SONRA ARRAYDAN EKRANA PRINTLE
-	printf("\033[1A");	// Move cursor one up
+	printf("\033[%d;%dH", cursor_line , cursor_col);	//Cursor Satir stun ne ise oraya gitsin
 
 }
 
@@ -171,10 +197,11 @@ void delete_line(int silinecek_satir){
 
 	if (silinecek_satir == 1){
 		int ilk_node_un_linki = textbuffer[0].link;
+		strcpy(textbuffer[0].line, "");
 		in_use = ilk_node_un_linki;
 		textbuffer[0].link = free_list;
 		free_list = 0;
-		
+		satirsayisi--;
 		return;
 	}
 
@@ -192,7 +219,8 @@ void delete_line(int silinecek_satir){
 		ugrasacagimizindex = textbuffer[ugrasacagimizindex].link;
         nth_satir++;
 	}
-	//printf("\nSilinecek node %d  \n" , textbuffer[ugrasacagimizindex].line);
+	//printf("\nSilinecek node %d  \n" , textbuffer[ugrasacagimizindex].line);+
+	strcpy(textbuffer[ugrasacagimizindex].line, " ");	//İçindeki veriyi yok et
 
 	int tmp_silinen_node_un_linki = textbuffer[ugrasacagimizindex].link;
 
@@ -227,8 +255,7 @@ void change_char(int satir_no, int stun_no, char karakter){
 	}
 
 
-	char templine[80]="";
-	templine[80]='\0';
+	char templine[80]="";	//\0 a gerek yok strcpy zaten koyuyor onu
 
 	strcpy(templine, textbuffer[ugrasacagimizindex].line);
 

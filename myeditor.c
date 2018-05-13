@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 		c = kbget();        // Get input
 		
 		if (c == '+') {	// Satir eklemesi icin
-			if(cursor_line<20){
+			if(satirsayisi < 20){
 				insert_line(cursor_line);
 				temizle();
 				prinlet();
@@ -39,17 +39,18 @@ int main(int argc, char *argv[]){
 			}
 		} else
 		if (c == '-') {	// Satir Silmesi icin
-			delete_line(cursor_line);
-			temizle();
-			prinlet();
-			printf("\033[%d;%dH",cursor_line-1,cursor_col);	//Cursoru goruntude bir uste al
-			cursor_line--;					//Cursoru degiskende bir uste al
+			if(satirsayisi > 0){
+				delete_line(cursor_line);
+				temizle();
+				prinlet();
+				printf("\033[%d;%dH",cursor_line-1,cursor_col);	//Cursoru goruntude bir uste al
+				cursor_line--;					//Cursoru degiskende bir uste al
+			}
 		
 		} else
 		if (c == '*') {	// DEBUG ICIN
-			printf("\033[23;0H -- Line: %d | Col: %d | Num of Lines: %d -- \033[%d;%dH",cursor_line , cursor_col , satirsayisi , cursor_line , cursor_col);
-			printf("\033[25;0H In-Use: %d Free: %d \033[%d;%dH",in_use , free_list , cursor_line , cursor_col);
-			printf("\033[25;0H");
+			printf("\033[23;0H -- Line: %d | Col: %d | (In-Use: %d | Free: %d) | Num of Lines: %d -- \033[%d;%dH",cursor_line , cursor_col , in_use , free_list, satirsayisi , cursor_line , cursor_col);
+			printf("\033[24;0H");
 			arrayprinlet();
 			printf("\033[%d;%dH", cursor_line , cursor_col);
 		} else
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]){
 			}
 		} else
 		if (c == KEY_RIGHT) {
-			if (cursor_col < strlen(textbuffer[cursor_line-1].line)){	//stun sayisindan daha fazla ileri gitmeye izin verme
+			if (cursor_col < strlen(textbuffer[cursor_line-1].line)+1){	//stun sayisindan daha fazla ileri gitmeye izin verme
 
 		    	    printf("\033[1C");	// Move cursor one right
 		    	    cursor_col++;
@@ -80,24 +81,29 @@ int main(int argc, char *argv[]){
 		} else
 		if (c == KEY_UP){
 			if (cursor_line > 1){	//Yukarı gidilebilicek satir var ise
-				int ust_satirin_uzunlugu = strlen(textbuffer[cursor_line-2].line);	//Ust satirin uzunlugu
-				if (ust_satirin_uzunlugu < cursor_col)
-					printf("\033[%d;%dH", cursor_line-1 , ust_satirin_uzunlugu);	// Move cursor one up and move col last char of up string
-				else{
+				int ust_satirin_uzunlugu = strlen(textbuffer[cursor_line-2].line) +1 ;	//Ust satirin uzunlugu + 1 fazlasına git
+				if (ust_satirin_uzunlugu < cursor_col){
+					cursor_col = ust_satirin_uzunlugu;
+					printf("\033[%d;%dH", cursor_line-1 , cursor_col);	// Move cursor one up and move col last char of up string
+					
+				}else{
 					printf("\033[1A");	// Move cursor one up
 				}
 				cursor_line--;
+				
 			}
 		}else
 		if (c == KEY_DOWN){
 			if (cursor_line < satirsayisi){	//Asagi inilebilecek satir var ise
-				int ust_satirin_uzunlugu = strlen(textbuffer[cursor_line].line);	//Asagiki satirin uzunlugu
-				if (ust_satirin_uzunlugu < cursor_col){
-					printf("\033[%d;%dH", cursor_line+1 , ust_satirin_uzunlugu);	// Move cursor one down and move col last char of up string
+				int alt_satirin_uzunlugu = strlen(textbuffer[cursor_line].line) +1;	//Asagiki satirin uzunlugu + 1 fazlasına git
+				if (alt_satirin_uzunlugu < cursor_col){
+					cursor_col = alt_satirin_uzunlugu;
+					printf("\033[%d;%dH", cursor_line+1 , cursor_col);	// Move cursor one down and move col last char of up string
 				}else{
 				    printf("\033[1B");	// Move cursor one down
 				}
 				cursor_line++;
+				
 			}
 
 		} else {
